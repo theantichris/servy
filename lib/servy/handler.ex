@@ -31,8 +31,8 @@ defmodule Servy.Handler do
         %{ conv | resp_body: "Teddy, Smokey, Paddington" }
     end
 
-    def route(conv, "GET", "/bigfoot") do
-        %{ conv | resp_body: "lol" }
+    def route(conv, _method, path) do
+        %{ conv | resp_body: "No #{path} here!"}
     end
 
     def format_response(conv) do
