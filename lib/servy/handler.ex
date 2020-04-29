@@ -1,6 +1,8 @@
 defmodule Servy.Handler do
     @moduledoc "Handles HTTP requests."
 
+    alias Servy.Conv
+
     @pages_path Path.expand("../../pages", __DIR__)
 
     import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
@@ -19,22 +21,22 @@ defmodule Servy.Handler do
     end
 
     @doc "Creates the response for the /wildthings route."
-    def route(%{method: "GET", path: "/wildthings"} = conv) do
+    def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
         %{ conv | resp_body: "Bears, Lions, Tigers", status: 200 }
     end
 
     @doc "Creates the response for the /bears route."
-    def route(%{method: "GET", path: "/bears"} = conv) do
+    def route(%Conv{method: "GET", path: "/bears"} = conv) do
         %{ conv | resp_body: "Teddy, Smokey, Paddington", status: 200 }
     end
 
     @doc "Creates the response for the /bears/id route."
-    def route(%{method: "GET", path: "/bears/" <> id} = conv) do
+    def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
         %{ conv | resp_body: "Bear #{id}", status: 200 }
     end
 
     @doc "Creates the response for the /about route."
-    def route(%{method: "GET", path: "/about"} = conv) do
+    def route(%Conv{method: "GET", path: "/about"} = conv) do
         @pages_path
         |> Path.join("about.html")
         |> File.read
@@ -42,30 +44,19 @@ defmodule Servy.Handler do
     end
 
     @doc "Creates 404 responses."
-    def route(%{path: path} = conv) do
+    def route(%Conv{path: path} = conv) do
         %{ conv | resp_body: "No #{path} here!", status: 404}
     end
 
     @doc "Formats the response string."
-    def format_response(conv) do
+    def format_response(%Conv{} = conv) do
         """
-        HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
+        HTTP/1.1 #{Conv.full_status(conv)}
         Content-Type: text/html
         Content-Length: #{byte_size(conv.resp_body)}
 
         #{conv.resp_body}
         """
-    end
-
-    defp status_reason(code) do
-        %{
-            200 => "OK",
-            201 => "Created",
-            401 => "Unauthorized",
-            403 => "Forbidden",
-            404 => "Not Found",
-            500 => "Internal Server Error"
-        }[code]
     end
 end
 
