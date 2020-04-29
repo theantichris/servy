@@ -1,6 +1,7 @@
 defmodule Servy.Handler do
-
     @moduledoc "Handles HTTP requests."
+
+    @pages_path Path.expand("../../pages", __DIR__)
 
     @doc "Transforsm the request into a response."
     def handle(request) do
@@ -49,8 +50,6 @@ defmodule Servy.Handler do
     def route(%{method: "GET", path: "/bears/" <> id} = conv) do
         %{ conv | resp_body: "Bear #{id}", status: 200 }
     end
-
-    @pages_path Path.expand("../../pages", __DIR__)
 
     @doc "Creates the response for the /about route."
     def route(%{method: "GET", path: "/about"} = conv) do
