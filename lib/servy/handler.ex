@@ -50,12 +50,19 @@ defmodule Servy.Handler do
         %{ conv | resp_body: "Bear #{id}", status: 200 }
     end
 
+    @pages_path Path.expand("../../pages", __DIR__)
+
     @doc "Creates the response for the /about route."
     def route(%{method: "GET", path: "/about"} = conv) do
-        Path.expand("../../pages", __DIR__)
+        @pages_path
         |> Path.join("about.html")
         |> File.read
         |> handle_file(conv)
+    end
+
+    @doc "Creates 404 responses."
+    def route(%{path: path} = conv) do
+        %{ conv | resp_body: "No #{path} here!", status: 404}
     end
 
     @doc "Adds file contents onto the conversation."
@@ -71,11 +78,6 @@ defmodule Servy.Handler do
     @doc "Creates a response for other file errors."
     def handle_file({:error, reason}, conv) do
         %{conv | status: 500, resp_body: "File error: #{reason}"}
-    end
-
-    @doc "Creates 404 responses."
-    def route(%{path: path} = conv) do
-        %{ conv | resp_body: "No #{path} here!", status: 404}
     end
 
     @doc "Tracks 404 responses."
@@ -98,7 +100,6 @@ defmodule Servy.Handler do
         """
     end
 
-    @doc "Map of HTTP statuses."
     defp status_reason(code) do
         %{
             200 => "OK",
