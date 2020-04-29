@@ -1,7 +1,31 @@
+defmodule Servy.Plugins do
+    @doc "Tracks 404 responses."
+    def track(%{status: 404, path: path} = conv) do
+        IO.puts "Warning: #{path} is on the loose!"
+        conv
+    end
+
+    @doc "Catch-all for non-404 routes."
+    def track(conv), do: conv
+
+    @doc "Rewrites the /wildlife route to /wildthings."
+    def rewrite_path(%{path: "/wildlife"} = conv) do
+        %{ conv | path: "/wildthings"}
+    end
+
+    @doc "Default rewrite for other routes."
+    def rewrite_path(conv), do: conv
+
+    @doc "Logs a request conversation."
+    def log(conv), do: IO.inspect conv
+end
+
 defmodule Servy.Handler do
     @moduledoc "Handles HTTP requests."
 
     @pages_path Path.expand("../../pages", __DIR__)
+
+    import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
 
     @doc "Transforsm the request into a response."
     def handle(request) do
@@ -24,17 +48,6 @@ defmodule Servy.Handler do
 
         %{ method: method, path: path, resp_body: "", status: nil }
     end
-
-    @doc "Rewrites the /wildlife route to /wildthings."
-    def rewrite_path(%{path: "/wildlife"} = conv) do
-        %{ conv | path: "/wildthings"}
-    end
-
-    @doc "Default rewrite for other routes."
-    def rewrite_path(conv), do: conv
-
-    @doc "Logs a request conversation."
-    def log(conv), do: IO.inspect conv
 
     @doc "Creates the response for the /wildthings route."
     def route(%{method: "GET", path: "/wildthings"} = conv) do
@@ -78,15 +91,6 @@ defmodule Servy.Handler do
     def handle_file({:error, reason}, conv) do
         %{conv | status: 500, resp_body: "File error: #{reason}"}
     end
-
-    @doc "Tracks 404 responses."
-    def track(%{status: 404, path: path} = conv) do
-        IO.puts "Warning: #{path} is on the loose!"
-        conv
-    end
-
-    @doc "Catch-all for non-404 routes."
-    def track(conv), do: conv
 
     @doc "Formats the response string."
     def format_response(conv) do
