@@ -1,4 +1,8 @@
 defmodule Servy.Handler do
+
+    @moduledoc "Handles HTTP requests."
+
+    @doc "Transforsm the request into a response."
     def handle(request) do
         request 
         |> parse
@@ -9,6 +13,7 @@ defmodule Servy.Handler do
         |> format_response
     end
 
+    @doc "Parses a request into a conversation map."
     def parse(request) do
         [method, path, _] =
             request 
@@ -19,26 +24,33 @@ defmodule Servy.Handler do
         %{ method: method, path: path, resp_body: "", status: nil }
     end
 
+    @doc "Rewrites the /wildlife route to /wildthings."
     def rewrite_path(%{path: "/wildlife"} = conv) do
         %{ conv | path: "/wildthings"}
     end
 
+    @doc "Default rewrite for other routes."
     def rewrite_path(conv), do: conv
 
+    @doc "Logs a request conversation."
     def log(conv), do: IO.inspect conv
 
+    @doc "Creates the response for the /wildthings route."
     def route(%{method: "GET", path: "/wildthings"} = conv) do
         %{ conv | resp_body: "Bears, Lions, Tigers", status: 200 }
     end
 
+    @doc "Creates the response for the /bears route."
     def route(%{method: "GET", path: "/bears"} = conv) do
         %{ conv | resp_body: "Teddy, Smokey, Paddington", status: 200 }
     end
 
+    @doc "Creates the response for the /bears/id route."
     def route(%{method: "GET", path: "/bears/" <> id} = conv) do
         %{ conv | resp_body: "Bear #{id}", status: 200 }
     end
 
+    @doc "Creates the response for the /about route."
     def route(%{method: "GET", path: "/about"} = conv) do
         Path.expand("../../pages", __DIR__)
         |> Path.join("about.html")
@@ -46,29 +58,36 @@ defmodule Servy.Handler do
         |> handle_file(conv)
     end
 
+    @doc "Adds file contents onto the conversation."
     def handle_file({:ok, content}, conv) do
         %{conv | status: 200, resp_body: content}
     end
 
+    @doc "Creates a response if a file is not found."
     def handle_file({:error, :enoent}, conv) do
         %{conv | status: 404, resp_body: "File not found!"}
     end
 
+    @doc "Creates a response for other file errors."
     def handle_file({:error, reason}, conv) do
         %{conv | status: 500, resp_body: "File error: #{reason}"}
     end
 
+    @doc "Creates 404 responses."
     def route(%{path: path} = conv) do
         %{ conv | resp_body: "No #{path} here!", status: 404}
     end
 
+    @doc "Tracks 404 responses."
     def track(%{status: 404, path: path} = conv) do
         IO.puts "Warning: #{path} is on the loose!"
         conv
     end
 
+    @doc "Catch-all for non-404 routes."
     def track(conv), do: conv
 
+    @doc "Formats the response string."
     def format_response(conv) do
         """
         HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
@@ -79,6 +98,7 @@ defmodule Servy.Handler do
         """
     end
 
+    @doc "Map of HTTP statuses."
     defp status_reason(code) do
         %{
             200 => "OK",
