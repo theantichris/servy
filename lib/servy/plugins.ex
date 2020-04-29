@@ -1,4 +1,6 @@
 defmodule Servy.Plugins do
+    @moduledoc "Support functions for the HTTP server."
+
     @doc "Tracks 404 responses."
     def track(%{status: 404, path: path} = conv) do
         IO.puts "Warning: #{path} is on the loose!"

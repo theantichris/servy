@@ -1,5 +1,6 @@
 defmodule Servy.Parser do
-    @doc "Parses a request into a conversation map."
+    @moduledoc "Parses a request into a conversation map."
+    
     def parse(request) do
         [method, path, _] =
             request 
