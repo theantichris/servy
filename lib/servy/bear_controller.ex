@@ -1,10 +1,16 @@
 defmodule Servy.BearController do
+    alias Servy.Wildthings
+
     def index(conv) do
-        %{ conv | resp_body: "Teddy, Smokey, Paddington", status: 200 }
+        items = Wildthings.list_bears()
+        |> Enum.map(fn(bear) -> "<li>#{bear.name} - #{bear.type}</li>" end)
+        |> Enum.join
+
+        %{ conv | status: 200, resp_body: "<ul>#{items}</ul>" }
     end
 
     def show(conv, %{"id" => id}) do
-        %{ conv | resp_body: "Bear #{id}", status: 200 }
+        %{ conv | status: 200, resp_body: "Bear #{id}" }
     end
 
     def create(conv, %{"name" => name, "type" => type}) do
