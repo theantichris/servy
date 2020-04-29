@@ -20,22 +20,22 @@ defmodule Servy.Handler do
         |> format_response
     end
 
-    @doc "Creates the response for the /wildthings route."
     def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
         %{ conv | resp_body: "Bears, Lions, Tigers", status: 200 }
     end
 
-    @doc "Creates the response for the /bears route."
     def route(%Conv{method: "GET", path: "/bears"} = conv) do
         %{ conv | resp_body: "Teddy, Smokey, Paddington", status: 200 }
     end
 
-    @doc "Creates the response for the /bears/id route."
     def route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
         %{ conv | resp_body: "Bear #{id}", status: 200 }
     end
 
-    @doc "Creates the response for the /about route."
+    def route(%Conv{method: "POST", path: "/bears"} = conv) do
+        %{ conv | status: 201, resp_body: "Created a #{conv.params["type"]} bear named #{conv.params["name"]}!" }
+    end
+
     def route(%Conv{method: "GET", path: "/about"} = conv) do
         @pages_path
         |> Path.join("about.html")
@@ -43,7 +43,6 @@ defmodule Servy.Handler do
         |> handle_file(conv)
     end
 
-    @doc "Creates 404 responses."
     def route(%Conv{path: path} = conv) do
         %{ conv | resp_body: "No #{path} here!", status: 404}
     end
@@ -125,6 +124,22 @@ GET /about HTTP/1.1
 HOST: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+
+IO.puts response
+
+request = """
+POST /bears HTTP/1.1
+HOST: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 21
+
+name=Baloo&type=Brown
 """
 
 response = Servy.Handler.handle(request)
