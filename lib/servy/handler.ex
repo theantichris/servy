@@ -10,7 +10,7 @@ defmodule Servy.Handler do
     import Servy.Parser, only: [parse: 1]
     import Servy.FileHandler, only: [handle_file: 2]
 
-    @doc "Transforsm the request into a response."
+    @doc "Transforms the request into a response."
     def handle(request) do
         request 
         |> parse
@@ -98,17 +98,17 @@ IO.puts response
 
 # IO.puts response
 
-# request = """
-# GET /bears/1 HTTP/1.1
-# Host: example.com
-# User-Agent: ExampleBrowser/1.0
-# Accept: */*
+request = """
+GET /bears/1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
 
-# """
+"""
 
-# response = Servy.Handler.handle(request)
+response = Servy.Handler.handle(request)
 
-# IO.puts response
+IO.puts response
 
 # request = """
 # GET /wildlife HTTP/1.1
